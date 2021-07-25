@@ -382,7 +382,6 @@ class WebSocketShard extends EventEmitter {
          * @event WebSocketShard#ready
          */
         this.emit(ShardEvents.READY);
-        console.log(packet.d.session_id)
         this.sessionId = packet.d.session_id;
         this.expectedGuilds = new Set(packet.d.guilds.map(d => d.id));
         this.status = Status.WAITING_FOR_GUILDS;
@@ -428,7 +427,6 @@ class WebSocketShard extends EventEmitter {
         // Reset the sequence
         this.sequence = -1;
         // Reset the session id as it's invalid
-        console.log("Invalid session")
         this.sessionId = null;
         // Set the status to reconnecting
         this.status = Status.RECONNECTING;
@@ -578,7 +576,7 @@ class WebSocketShard extends EventEmitter {
    * @returns {void}
    */
   identify() {
-    console.log(this.sessionId)
+    console.log(this.sessionId, "IDENTIFY")
     return this.sessionId ? this.identifyResume() : this.identifyNew();
   }
 
@@ -696,6 +694,7 @@ class WebSocketShard extends EventEmitter {
     Reset         : ${reset}
     Emit DESTROYED: ${emit}`);
     }
+    console.log(this.sessionId, "DESTROY TRIGGER")
 
     // Step 0: Remove all timers
     this.setHeartbeatTimer(-1);
@@ -703,11 +702,14 @@ class WebSocketShard extends EventEmitter {
 
     // Step 1: Close the WebSocket connection, if any, otherwise, emit DESTROYED
     if (this.connection) {
+      console.log("fuckin connection exists")
       // If the connection is currently opened, we will (hopefully) receive close
       if (this.connection.readyState === WebSocket.OPEN) {
+        console.log("close connection gay")
         this.connection.close(closeCode);
       } else {
         // Connection is not OPEN
+        console.log("there is no connection")
         this.debug(`WS State: ${CONNECTION_STATE[this.connection.readyState]}`);
         // Remove listeners from the connection
         this._cleanupConnection();
@@ -736,10 +738,11 @@ class WebSocketShard extends EventEmitter {
 
     // Step 5: Reset the sequence and session id if requested
     if (reset) {
+      console.log("will this sessionID killer trigger? no")
       this.sequence = -1;
       this.sessionId = null;
     }
-
+    console.log(this.sessionId, "DESTROY")
     // Step 6: reset the ratelimit data
     this.ratelimit.remaining = this.ratelimit.total;
     this.ratelimit.queue.length = 0;
