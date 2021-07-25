@@ -226,7 +226,7 @@ class WebSocketShard extends EventEmitter {
       if (this.connection) {
         this.debug(`A connection object was found. Cleaning up before continuing.
     State: ${CONNECTION_STATE[this.connection.readyState]}`);
-        this.destroy({ emit: false });
+        this.destroy({ emit: false, reset: false });
       }
 
       const wsQuery = { v: client.options.ws.version };
@@ -342,7 +342,7 @@ class WebSocketShard extends EventEmitter {
   onClose(event) {
     if (this.sequence !== -1) this.closeSequence = this.sequence;
     this.sequence = -1;
-
+    console.log(this.sessionId, "onClose")
     this.debug(`[CLOSE]
     Event Code: ${event.code}
     Clean     : ${event.wasClean}
@@ -361,6 +361,8 @@ class WebSocketShard extends EventEmitter {
      * @event WebSocketShard#close
      * @param {CloseEvent} event The received event
      */
+     console.log(this.sessionId, "onClose2")
+
     this.emit(ShardEvents.CLOSE, event);
   }
 
@@ -414,7 +416,7 @@ class WebSocketShard extends EventEmitter {
         break;
       case Opcodes.RECONNECT:
         this.debug('[RECONNECT] Discord asked us to reconnect');
-        this.destroy({ closeCode: 4000 });
+        this.destroy({ closeCode: 4000, reset: false });
         break;
       case Opcodes.INVALID_SESSION:
 
@@ -504,6 +506,7 @@ class WebSocketShard extends EventEmitter {
     this.debug('Setting a HELLO timeout for 20s.');
     this.helloTimeout = setTimeout(() => {
       this.debug('Did not receive HELLO in time. Destroying and connecting again.');
+      console.log("HELLO TIMEOUT DESTRORY")
       this.destroy({ reset: true, closeCode: 4009 });
     }, 20000).unref();
   }
@@ -651,7 +654,7 @@ class WebSocketShard extends EventEmitter {
   _send(data) {
     if (this.connection?.readyState !== WebSocket.OPEN) {
       this.debug(`Tried to send packet '${JSON.stringify(data)}' but no WebSocket is available!`);
-      this.destroy({ closeCode: 4000 });
+      this.destroy({ closeCode: 4000, reset: false });
       return;
     }
 
@@ -737,7 +740,7 @@ class WebSocketShard extends EventEmitter {
     if (this.sequence !== -1) this.closeSequence = this.sequence;
 
     // Step 5: Reset the sequence and session id if requested
-    if (reset) {
+    if (reset == false) {
       console.log("will this sessionID killer trigger? no")
       this.sequence = -1;
       this.sessionId = null;
