@@ -224,7 +224,7 @@ class WebSocketManager extends EventEmitter {
 
         this.shardQueue.add(shard);
 
-        if (shard.sessionID) {
+        if (shard.sessionId) {
           this.debug(`Session ID is present, attempting an immediate reconnect...`, shard);
           this.reconnect(true);
         } else {

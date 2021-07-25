@@ -740,11 +740,11 @@ class WebSocketShard extends EventEmitter {
     if (this.sequence !== -1) this.closeSequence = this.sequence;
 
     // Step 5: Reset the sequence and session id if requested
-    /*if (reset == true) {
+    if (reset == true) {
       console.log("will this sessionID killer trigger? no")
       this.sequence = -1;
       this.sessionId = null;
-    }*/
+    }
     console.log(this.sessionId, "DESTROY")
     // Step 6: reset the ratelimit data
     this.ratelimit.remaining = this.ratelimit.total;
