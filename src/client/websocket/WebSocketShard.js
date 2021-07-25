@@ -407,7 +407,6 @@ class WebSocketShard extends EventEmitter {
     }
 
     if (packet.s > this.sequence) this.sequence = packet.s;
-    console.log(packet)
     switch (packet.op) {
       case Opcodes.HELLO:
         this.setHelloTimeout(-1);
