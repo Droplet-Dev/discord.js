@@ -390,7 +390,7 @@ class WebSocketShard extends EventEmitter {
         this.lastHeartbeatAcked = true;
         this.sendHeartbeat('ReadyHeartbeat');
         break;
-      case WSEvents.RESUMED: 
+      case WSEvents.RESUMED: {
         /**
          * Emitted when the shard resumes successfully
          * @event WebSocketShard#resumed
@@ -403,7 +403,7 @@ class WebSocketShard extends EventEmitter {
         this.lastHeartbeatAcked = true;
         this.sendHeartbeat('ResumeHeartbeat');
         break;
-      
+      }
     }
 
     if (packet.s > this.sequence) this.sequence = packet.s;
