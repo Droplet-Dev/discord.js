@@ -407,7 +407,7 @@ class WebSocketShard extends EventEmitter {
     }
 
     if (packet.s > this.sequence) this.sequence = packet.s;
-    console.log(packet.d)
+    console.log(packet)
     switch (packet.op) {
       case Opcodes.HELLO:
         this.setHelloTimeout(-1);
@@ -577,6 +577,7 @@ class WebSocketShard extends EventEmitter {
    * @returns {void}
    */
   identify() {
+    console.log(this.sessionId)
     return this.sessionId ? this.identifyResume() : this.identifyNew();
   }
 
