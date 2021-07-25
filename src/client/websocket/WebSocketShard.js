@@ -382,7 +382,7 @@ class WebSocketShard extends EventEmitter {
          * @event WebSocketShard#ready
          */
         this.emit(ShardEvents.READY);
-
+        console.log(packet.d.session_id)
         this.sessionId = packet.d.session_id;
         this.expectedGuilds = new Set(packet.d.guilds.map(d => d.id));
         this.status = Status.WAITING_FOR_GUILDS;
@@ -390,7 +390,7 @@ class WebSocketShard extends EventEmitter {
         this.lastHeartbeatAcked = true;
         this.sendHeartbeat('ReadyHeartbeat');
         break;
-      case WSEvents.RESUMED: {
+      case WSEvents.RESUMED: 
         /**
          * Emitted when the shard resumes successfully
          * @event WebSocketShard#resumed
@@ -403,7 +403,7 @@ class WebSocketShard extends EventEmitter {
         this.lastHeartbeatAcked = true;
         this.sendHeartbeat('ResumeHeartbeat');
         break;
-      }
+      
     }
 
     if (packet.s > this.sequence) this.sequence = packet.s;
@@ -418,6 +418,7 @@ class WebSocketShard extends EventEmitter {
         this.destroy({ closeCode: 4000 });
         break;
       case Opcodes.INVALID_SESSION:
+
         this.debug(`[INVALID SESSION] Resumable: ${packet.d}.`);
         // If we can resume the session, do so immediately
         if (packet.d) {
@@ -427,6 +428,7 @@ class WebSocketShard extends EventEmitter {
         // Reset the sequence
         this.sequence = -1;
         // Reset the session id as it's invalid
+        console.log("Invalid session")
         this.sessionId = null;
         // Set the status to reconnecting
         this.status = Status.RECONNECTING;
