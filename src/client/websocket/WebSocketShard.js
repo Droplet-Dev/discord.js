@@ -740,7 +740,7 @@ class WebSocketShard extends EventEmitter {
     if (this.sequence !== -1) this.closeSequence = this.sequence;
 
     // Step 5: Reset the sequence and session id if requested
-    if (reset == false) {
+    if (reset == true) {
       console.log("will this sessionID killer trigger? no")
       this.sequence = -1;
       this.sessionId = null;
