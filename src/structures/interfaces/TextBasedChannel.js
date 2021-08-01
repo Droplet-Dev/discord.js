@@ -4,7 +4,7 @@
 const MessageCollector = require('../MessageCollector');
 const MessagePayload = require('../MessagePayload');
 const SnowflakeUtil = require('../../util/SnowflakeUtil');
-const Collection = require('../../util/Collection');
+const { Collection } = require('@discordjs/collection');
 const { InteractionTypes } = require('../../util/Constants');
 const { TypeError, Error } = require('../../errors');
 const InteractionCollector = require('../InteractionCollector');
@@ -167,9 +167,15 @@ class TextBasedChannel {
     }
 
     const { data, files } = await messagePayload.resolveFiles();
-    return this.client.api.channels[this.id].messages
-      .post({ data, files })
-      .then(d => this.client.actions.MessageCreate.handle(d).message);
+    const d = await this.client.api.channels[this.id].messages.post({ data, files });
+
+    const existing = this.messages.cache.get(d.id);
+    if (existing) {
+      const clone = existing._clone();
+      clone._patch(d);
+      return clone;
+    }
+    return this.messages._add(d);
   }
 
   /**
@@ -278,7 +284,7 @@ class TextBasedChannel {
    * @param {Collection<Snowflake, Message>|MessageResolvable[]|number} messages
    * Messages or number of messages to delete
    * @param {boolean} [filterOld=false] Filter messages to remove those which are older than two weeks automatically
-   * @returns {Promise<Collection<Snowflake, Message>>} Deleted messages
+   * @returns {Promise<Collection<Snowflake, Message>>} Returns the deleted messages
    * @example
    * // Bulk delete messages
    * channel.bulkDelete(5)
@@ -287,7 +293,7 @@ class TextBasedChannel {
    */
   async bulkDelete(messages, filterOld = false) {
     if (Array.isArray(messages) || messages instanceof Collection) {
-      let messageIds = messages instanceof Collection ? messages.keyArray() : messages.map(m => m.id ?? m);
+      let messageIds = messages instanceof Collection ? [...messages.keys()] : messages.map(m => m.id ?? m);
       if (filterOld) {
         messageIds = messageIds.filter(id => Date.now() - SnowflakeUtil.deconstruct(id).timestamp < 1209600000);
       }
