@@ -788,6 +788,7 @@ class Message extends Base {
    */
   fetchWebhook() {
     if (!this.webhookId) return Promise.reject(new Error('WEBHOOK_MESSAGE'));
+    if (this.webhookId === this.applicationId) return Promise.reject(new Error('WEBHOOK_APPLICATION'));
     return this.client.fetchWebhook(this.webhookId);
   }
 
@@ -814,6 +815,15 @@ class Message extends Base {
    */
   removeAttachments() {
     return this.edit({ attachments: [] });
+  }
+
+  /**
+   * Resolves a component by a custom id.
+   * @param {string} customId The custom id to resolve against
+   * @returns {?MessageActionRowComponent}
+   */
+  resolveComponent(customId) {
+    return this.components.flatMap(row => row.components).find(component => component.customId === customId) ?? null;
   }
 
   /**
