@@ -330,7 +330,7 @@ class MessageEmbed {
     try {
       this.color = Util.resolveColor(color);
     } catch (error) {
-      this.color = "#ffffff"
+      this.color = null
     }
     return this;
   }
