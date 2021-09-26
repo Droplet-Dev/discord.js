@@ -6,7 +6,7 @@ const { Events } = require('../../util/Constants');
 
 class VoiceStateUpdate extends Action {
   handle(data) {
-    const client = this.client;
+    /*  const client = this.client;
     const guild = client.guilds.cache.get(data.guild_id);
     if (guild) {
       // Update the state
@@ -29,14 +29,11 @@ class VoiceStateUpdate extends Action {
         client.voice.onVoiceStateUpdate(data);
       }
 
-      /**
-       * Emitted whenever a member changes voice state - e.g. joins/leaves a channel, mutes/unmutes.
-       * @event Client#voiceStateUpdate
-       * @param {VoiceState} oldState The voice state before the update
-       * @param {VoiceState} newState The voice state after the update
-       */
+     
       client.emit(Events.VOICE_STATE_UPDATE, oldState, newState);
-    }
+    } */
+    return {};
+
   }
 }
 

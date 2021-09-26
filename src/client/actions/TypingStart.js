@@ -6,7 +6,7 @@ const { Events, TextBasedChannelTypes } = require('../../util/Constants');
 
 class TypingStart extends Action {
   handle(data) {
-    const channel = this.getChannel(data);
+ /*   const channel = this.getChannel(data);
     if (!channel) {
       return;
     }
@@ -17,13 +17,10 @@ class TypingStart extends Action {
 
     const user = this.getUserFromMember(data);
     if (channel && user) {
-      /**
-       * Emitted whenever a user starts typing in a channel.
-       * @event Client#typingStart
-       * @param {Typing} typing The typing state
-       */
+     
       this.client.emit(Events.TYPING_START, new Typing(channel, user, data));
-    }
+    } */
+    return {};
   }
 }
 

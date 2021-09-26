@@ -5,7 +5,7 @@ const { Events } = require('../../util/Constants');
 
 class StageInstanceDeleteAction extends Action {
   handle(data) {
-    const client = this.client;
+  /*  const client = this.client;
     const channel = this.getChannel(data);
 
     if (channel) {
@@ -14,16 +14,12 @@ class StageInstanceDeleteAction extends Action {
         channel.guild.stageInstances.cache.delete(stageInstance.id);
         stageInstance.deleted = true;
 
-        /**
-         * Emitted whenever a stage instance is deleted.
-         * @event Client#stageInstanceDelete
-         * @param {StageInstance} stageInstance The deleted stage instance
-         */
+       
         client.emit(Events.STAGE_INSTANCE_DELETE, stageInstance);
 
         return { stageInstance };
       }
-    }
+    } */
 
     return {};
   }

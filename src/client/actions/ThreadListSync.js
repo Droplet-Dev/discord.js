@@ -6,7 +6,7 @@ const { Events } = require('../../util/Constants');
 
 class ThreadListSyncAction extends Action {
   handle(data) {
-    const client = this.client;
+     /*const client = this.client;
 
     const guild = client.guilds.cache.get(data.guild_id);
     if (!guild) return {};
@@ -35,16 +35,12 @@ class ThreadListSyncAction extends Action {
       }
     }
 
-    /**
-     * Emitted whenever the client user gains access to a text or news channel that contains threads
-     * @event Client#threadListSync
-     * @param {Collection<Snowflake, ThreadChannel>} threads The threads that were synced
-     */
+   
     client.emit(Events.THREAD_LIST_SYNC, syncedThreads);
 
     return {
       syncedThreads,
-    };
+    }; 
   }
 
   removeStale(channel) {
@@ -52,7 +48,8 @@ class ThreadListSyncAction extends Action {
       if (!thread.archived) {
         this.client.channels._remove(thread.id);
       }
-    });
+    }); */
+    return {};
   }
 }
 

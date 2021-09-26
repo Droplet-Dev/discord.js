@@ -4,7 +4,7 @@ const Action = require('./Action');
 
 class GuildStickersUpdateAction extends Action {
   handle(data) {
-    const guild = this.client.guilds.cache.get(data.guild_id);
+  /*  const guild = this.client.guilds.cache.get(data.guild_id);
     if (!guild?.stickers) return;
 
     const deletions = new Map(guild.stickers.cache);
@@ -27,7 +27,8 @@ class GuildStickersUpdateAction extends Action {
     for (const sticker of deletions.values()) {
       // Sticker deleted
       this.client.actions.GuildStickerDelete.handle(sticker);
-    }
+    } */
+    return {};
   }
 }
 

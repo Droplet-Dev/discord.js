@@ -5,7 +5,7 @@ const { Events } = require('../../util/Constants');
 
 class PresenceUpdateAction extends Action {
   handle(data) {
-    let user = this.client.users.cache.get(data.user.id);
+     /*let user = this.client.users.cache.get(data.user.id);
     if (!user && data.user?.username) user = this.client.users._add(data.user);
     if (!user) return;
 
@@ -28,14 +28,10 @@ class PresenceUpdateAction extends Action {
     }
     const newPresence = guild.presences._add(Object.assign(data, { guild }));
     if (this.client.listenerCount(Events.PRESENCE_UPDATE) && !newPresence.equals(oldPresence)) {
-      /**
-       * Emitted whenever a guild member's presence (e.g. status, activity) is changed.
-       * @event Client#presenceUpdate
-       * @param {?Presence} oldPresence The presence before the update, if one at all
-       * @param {Presence} newPresence The presence after the update
-       */
+     
       this.client.emit(Events.PRESENCE_UPDATE, oldPresence, newPresence);
-    }
+    }*/
+    return {};
   }
 }
 
