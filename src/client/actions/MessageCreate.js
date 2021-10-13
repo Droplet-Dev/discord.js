@@ -20,7 +20,7 @@ class MessageCreateAction extends Action {
      
       return { message };
     }
-   // return {};
+   return {};
   }
 }
 
