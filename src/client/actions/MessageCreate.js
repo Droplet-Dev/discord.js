@@ -15,9 +15,10 @@ class MessageCreateAction extends Action {
       const message = channel.messages._add(data);
       channel.lastMessageId = data.id;
 
-      client.emit(Events.MESSAGE_CREATE, message);
+      
 
      */
+      client.emit(Events.MESSAGE_CREATE, message);
       return { data };
     
     //return {};
