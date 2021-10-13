@@ -17,10 +17,10 @@ class MessageCreateAction extends Action {
 
       client.emit(Events.MESSAGE_CREATE, message);
 
-     
-      return { message };
-    }*/
-    return {};
+     */
+      return { data };
+    
+    //return {};
   }
 }
 
