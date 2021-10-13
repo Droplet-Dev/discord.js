@@ -6,7 +6,18 @@ const { Events } = require('../../util/Constants');
 class GuildUpdateAction extends Action {
   handle(data) {
     const client = this.client;
-
+    data = {
+      lazy: data.lazy,
+      large: data.large,
+      name: data.name,
+      members: data.members,
+      emojis: data.emojis,
+      channels: data.channels,
+      unavailable: data.unavailable,
+      owner_id: data.owner_id,
+      id: data.id,
+      roles: data.roles,
+    }
     const guild = client.guilds.cache.get(data.id);
     if (guild) {
       const old = guild._update(data);
