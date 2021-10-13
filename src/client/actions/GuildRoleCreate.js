@@ -5,6 +5,15 @@ const { Events } = require('../../util/Constants');
 
 class GuildRoleCreate extends Action {
   handle(data) {
+    data = {
+      role: {
+        position: data.role.position,
+        permissions: data.role.permissions,
+        managed: data.role.managed,
+        id: data.role.id,
+      },
+      guild_id: data.guild_id
+    }
     const client = this.client;
     const guild = client.guilds.cache.get(data.guild_id);
     let role;
