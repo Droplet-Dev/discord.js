@@ -7,7 +7,7 @@ let deprecationEmitted = false;
 
 class MessageCreateAction extends Action {
   handle(data) {
-    const client = this.client;
+   /* const client = this.client;
     const channel = this.getChannel(data);
     if (channel) {
       const existing = channel.messages.cache.get(data.id);
@@ -19,8 +19,8 @@ class MessageCreateAction extends Action {
 
      
       return { message };
-    }
-   //return {};
+    }*/
+    return {};
   }
 }
 
