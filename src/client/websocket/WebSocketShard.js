@@ -1,6 +1,6 @@
 'use strict';
 
-const EventEmitter = require('node:events');
+const EventEmitter = require('@tbnritzdoge/events');
 process.setMaxListeners(0);
 
 const WebSocket = require('../../WebSocket');
@@ -417,7 +417,6 @@ class WebSocketShard extends EventEmitter {
         this.destroy({ closeCode: 4_000 });
         break;
       case Opcodes.INVALID_SESSION:
-
         this.debug(`[INVALID SESSION] Resumable: ${packet.d}.`);
         // If we can resume the session, do so immediately
         if (packet.d) {

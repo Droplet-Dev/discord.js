@@ -1,6 +1,6 @@
 'use strict';
 
-const EventEmitter = require('node:events');
+const EventEmitter = require('@tbnritzdoge/events');
 const path = require('node:path');
 const { Error } = require('../errors');
 const Util = require('../util/Util');
