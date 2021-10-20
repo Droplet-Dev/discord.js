@@ -1,6 +1,6 @@
 'use strict';
 
-const EventEmitter = require('@tbnritzdoge/events');
+const EventEmitter = require('node:events');
 const fs = require('node:fs');
 const path = require('node:path');
 const { Collection } = require('@discordjs/collection');

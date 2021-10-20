@@ -1,6 +1,6 @@
 'use strict';
 
-const EventEmitter = require('@tbnritzdoge/events');
+const EventEmitter = require('node:events');
 process.setMaxListeners(0);
 
 const WebSocket = require('../../WebSocket');
