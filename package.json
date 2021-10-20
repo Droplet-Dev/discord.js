@@ -49,10 +49,9 @@
   "homepage": "https://discord.js.org",
   "dependencies": {
     "@discordjs/builders": "^0.6.0",
-    "@discordjs/collection": "^0.2.1",
+    "@discordjs/collection": "github:Droplet-Dev/collection",
     "@discordjs/form-data": "^3.0.1",
     "@sapphire/async-queue": "^1.1.5",
-    "@tbnritzdoge/events": "github:tbnritzdoge/events",
     "@types/ws": "^8.2.0",
     "discord-api-types": "^0.23.1",
     "node-fetch": "^2.6.1",
