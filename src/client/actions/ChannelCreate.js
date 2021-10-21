@@ -1,8 +1,8 @@
 'use strict';
 
 const Action = require('./Action');
+const redis = require('../../redis');
 const { Events } = require('../../util/Constants');
-
 class ChannelCreateAction extends Action {
   handle(data) {
     const client = this.client;
@@ -14,6 +14,7 @@ class ChannelCreateAction extends Action {
        * @event Client#channelCreate
        * @param {GuildChannel} channel The channel that was created
        */
+      redis.set(data.id, JSON.stringify(channel));
       client.emit(Events.CHANNEL_CREATE, channel);
     }
     return { channel };
