@@ -1,8 +1,8 @@
 'use strict';
-
+const redis = require('../../../redis');
 const { Events, Status } = require('../../../util/Constants');
 
-module.exports = (client, { d: data }, shard) => {
+module.exports = async (client, { d: data }, shard) => {
   data = {
     lazy: data.lazy,
     large: data.large,
@@ -14,7 +14,7 @@ module.exports = (client, { d: data }, shard) => {
     owner_id: data.owner_id,
     id: data.id,
     roles: data.roles,
-  }
+  };
   let guild = client.guilds.cache.get(data.id);
   if (guild) {
     if (!guild.available && !data.unavailable) {
@@ -25,6 +25,8 @@ module.exports = (client, { d: data }, shard) => {
     // A new guild
     data.shardId = shard.id;
     guild = client.guilds._add(data);
+    await redis.set(data.id, JSON.stringify(data));
+
     if (client.ws.status === Status.READY) {
       /**
        * Emitted whenever the client joins a guild.
