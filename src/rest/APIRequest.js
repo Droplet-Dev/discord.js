@@ -31,7 +31,7 @@ class APIRequest {
   }
 
   make() {
-    agent ??= new http.Agent({ ...this.client.options.http.agent, keepAlive: true });
+    agent ??= new http.Agent({ ...this.client.options.http.agent, keepAlive: false });
 
     const API =
       this.options.versioned === false
