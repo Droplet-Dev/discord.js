@@ -1,6 +1,7 @@
 'use strict';
 
 const https = require('node:https');
+const http = require('node:http');
 const FormData = require('@discordjs/form-data');
 const fetch = require('node-fetch');
 const { UserAgent } = require('../util/Constants');
@@ -30,7 +31,7 @@ class APIRequest {
   }
 
   make() {
-    agent ??= new https.Agent({ ...this.client.options.http.agent, keepAlive: true });
+    agent ??= new http.Agent({ ...this.client.options.http.agent, keepAlive: true });
 
     const API =
       this.options.versioned === false
