@@ -34,6 +34,16 @@ const DataResolver = require('../util/DataResolver');
 const SystemChannelFlags = require('../util/SystemChannelFlags');
 const Util = require('../util/Util');
 
+let deprecationEmittedForSetChannelPositions = false;
+let deprecationEmittedForSetRolePositions = false;
+
+/**
+ * @type {WeakSet<Guild>}
+ * @private
+ * @internal
+ */
+const deletedGuilds = new WeakSet();
+
 /**
  * Represents a guild (or a server) on Discord.
  * <info>It's recommended to see if a guild is available before performing operations or reading data from it. You can
@@ -98,12 +108,6 @@ class Guild extends AnonymousGuild {
      */
     this.invites = new GuildInviteManager(this);
 
-    /**
-     * Whether the bot has been removed from the guild
-     * @type {boolean}
-     */
-    this.deleted = false;
-
     if (!data) return;
     if (data.unavailable) {
       /**
@@ -124,6 +128,19 @@ class Guild extends AnonymousGuild {
   }
 
   /**
+   * Whether or not the structure has been deleted
+   * @type {boolean}
+   */
+  get deleted() {
+    return deletedGuilds.has(this);
+  }
+
+  set deleted(value) {
+    if (value) deletedGuilds.add(this);
+    else deletedGuilds.delete(this);
+  }
+
+  /**
    * The Shard this Guild belongs to.
    * @type {WebSocketShard}
    * @readonly
@@ -137,7 +154,11 @@ class Guild extends AnonymousGuild {
     this.id = data.id;
     if ('name' in data) this.name = data.name;
     if ('icon' in data) this.icon = data.icon;
-    if ('unavailable' in data) this.available = !data.unavailable;
+    if ('unavailable' in data) {
+      this.available = !data.unavailable;
+    } else {
+      this.available ??= true;
+    }
 
     if ('discovery_splash' in data) {
       /**
@@ -161,6 +182,14 @@ class Guild extends AnonymousGuild {
        * @type {boolean}
        */
       this.large = Boolean(data.large);
+    }
+
+    if ('premium_progress_bar_enabled' in data) {
+      /**
+       * Whether this guild has its premium (boost) progress bar enabled
+       * @type {boolean}
+       */
+      this.premiumProgressBarEnabled = data.premium_progress_bar_enabled;
     }
 
     /**
@@ -487,16 +516,9 @@ class Guild extends AnonymousGuild {
   }
 
   /**
-   * Options used to fetch the owner of a guild or a thread.
-   * @typedef {Object} FetchOwnerOptions
-   * @property {boolean} [cache=true] Whether or not to cache the fetched member
-   * @property {boolean} [force=false] Whether to skip the cache check and request the API
-   */
-
-  /**
    * Fetches the owner of the guild.
    * If the member object isn't needed, use {@link Guild#ownerId} instead.
-   * @param {FetchOwnerOptions} [options] The options for fetching the member
+   * @param {BaseFetchOptions} [options] The options for fetching the member
    * @returns {Promise<GuildMember>}
    */
   fetchOwner(options) {
@@ -649,8 +671,8 @@ class Guild extends AnonymousGuild {
    */
 
   /**
-   * Fetches the vanity url invite object to this guild.
-   * Resolves with an object containing the vanity url invite code and the use count
+   * Fetches the vanity URL invite object to this guild.
+   * Resolves with an object containing the vanity URL invite code and the use count
    * @returns {Promise<Vanity>}
    * @example
    * // Fetch invite data
@@ -787,6 +809,7 @@ class Guild extends AnonymousGuild {
    * @property {TextChannelResolvable} [rulesChannel] The rules channel of the guild
    * @property {TextChannelResolvable} [publicUpdatesChannel] The community updates channel of the guild
    * @property {string} [preferredLocale] The preferred locale of the guild
+   * @property {boolean} [premiumProgressBarEnabled] Whether the guild's premium progress bar is enabled
    * @property {string} [description] The discovery description of the guild
    * @property {Features[]} [features] The features of the guild
    */
@@ -869,6 +892,7 @@ class Guild extends AnonymousGuild {
       _data.description = data.description;
     }
     if (data.preferredLocale) _data.preferred_locale = data.preferredLocale;
+    if ('premiumProgressBarEnabled' in data) _data.premium_progress_bar_enabled = data.premiumProgressBarEnabled;
     const newData = await this.client.api.guilds(this.id).patch({ data: _data, reason });
     return this.client.actions.GuildUpdate.handle(newData).updated;
   }
@@ -877,7 +901,7 @@ class Guild extends AnonymousGuild {
    * Welcome channel data
    * @typedef {Object} WelcomeChannelData
    * @property {string} description The description to show for this welcome channel
-   * @property {GuildTextChannelResolvable} channel The channel to link for this welcome channel
+   * @property {TextChannel|NewsChannel|StoreChannel|Snowflake} channel The channel to link for this welcome channel
    * @property {EmojiIdentifierResolvable} [emoji] The emoji to display for this welcome channel
    */
 
@@ -1073,7 +1097,8 @@ class Guild extends AnonymousGuild {
    * @example
    * // Edit the guild owner
    * guild.setOwner(guild.members.cache.first())
-   *  .then(updated => console.log(`Updated the guild owner to ${updated.owner.displayName}`))
+   *  .then(guild => guild.fetchOwner())
+   *  .then(owner => console.log(`Updated the guild owner to ${owner.displayName}`))
    *  .catch(console.error);
    */
   setOwner(owner, reason) {
@@ -1170,6 +1195,16 @@ class Guild extends AnonymousGuild {
   }
 
   /**
+   * Edits the enabled state of the guild's premium progress bar
+   * @param {boolean} [enabled=true] The new enabled state of the guild's premium progress bar
+   * @param {string} [reason] Reason for changing the state of the guild's premium progress bar
+   * @returns {Promise<Guild>}
+   */
+  setPremiumProgressBarEnabled(enabled = true, reason) {
+    return this.edit({ premiumProgressBarEnabled: enabled }, reason);
+  }
+
+  /**
    * Data that can be resolved to give a Category Channel object. This can be:
    * * A CategoryChannel object
    * * A Snowflake
@@ -1190,24 +1225,23 @@ class Guild extends AnonymousGuild {
    * <info>Only one channel's parent can be changed at a time</info>
    * @param {ChannelPosition[]} channelPositions Channel positions to update
    * @returns {Promise<Guild>}
+   * @deprecated Use {@link GuildChannelManager#setPositions} instead
    * @example
    * guild.setChannelPositions([{ channel: channelId, position: newChannelIndex }])
    *   .then(guild => console.log(`Updated channel positions for ${guild}`))
    *   .catch(console.error);
    */
-  async setChannelPositions(channelPositions) {
-    const updatedChannels = channelPositions.map(r => ({
-      id: this.client.channels.resolveId(r.channel),
-      position: r.position,
-      lock_permissions: r.lockPermissions,
-      parent_id: typeof r.parent !== 'undefined' ? this.channels.resolveId(r.parent) : undefined,
-    }));
+  setChannelPositions(channelPositions) {
+    if (!deprecationEmittedForSetChannelPositions) {
+      process.emitWarning(
+        'The Guild#setChannelPositions method is deprecated. Use GuildChannelManager#setPositions instead.',
+        'DeprecationWarning',
+      );
 
-    await this.client.api.guilds(this.id).channels.patch({ data: updatedChannels });
-    return this.client.actions.GuildChannelsPositionUpdate.handle({
-      guild_id: this.id,
-      channels: updatedChannels,
-    }).guild;
+      deprecationEmittedForSetChannelPositions = true;
+    }
+
+    return this.channels.setPositions(channelPositions);
   }
 
   /**
@@ -1221,26 +1255,23 @@ class Guild extends AnonymousGuild {
    * Batch-updates the guild's role positions
    * @param {GuildRolePosition[]} rolePositions Role positions to update
    * @returns {Promise<Guild>}
+   * @deprecated Use {@link RoleManager#setPositions} instead
    * @example
    * guild.setRolePositions([{ role: roleId, position: updatedRoleIndex }])
    *  .then(guild => console.log(`Role positions updated for ${guild}`))
    *  .catch(console.error);
    */
-  async setRolePositions(rolePositions) {
-    // Make sure rolePositions are prepared for API
-    rolePositions = rolePositions.map(o => ({
-      id: this.roles.resolveId(o.role),
-      position: o.position,
-    }));
+  setRolePositions(rolePositions) {
+    if (!deprecationEmittedForSetRolePositions) {
+      process.emitWarning(
+        'The Guild#setRolePositions method is deprecated. Use RoleManager#setPositions instead.',
+        'DeprecationWarning',
+      );
 
-    // Call the API to update role positions
-    await this.client.api.guilds(this.id).roles.patch({
-      data: rolePositions,
-    });
-    return this.client.actions.GuildRolesPositionUpdate.handle({
-      guild_id: this.id,
-      roles: rolePositions,
-    }).guild;
+      deprecationEmittedForSetRolePositions = true;
+    }
+
+    return this.roles.setPositions(rolePositions);
   }
 
   /**
@@ -1382,7 +1413,8 @@ class Guild extends AnonymousGuild {
   }
 }
 
-module.exports = Guild;
+exports.Guild = Guild;
+exports.deletedGuilds = deletedGuilds;
 
 /**
  * @external APIGuild

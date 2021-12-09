@@ -7,6 +7,13 @@ const SnowflakeUtil = require('../util/SnowflakeUtil');
 const Util = require('../util/Util');
 
 /**
+ * @type {WeakSet<Role>}
+ * @private
+ * @internal
+ */
+const deletedRoles = new WeakSet();
+
+/**
  * Represents a role on Discord.
  * @extends {Base}
  */
@@ -19,6 +26,18 @@ class Role extends Base {
      * @type {Guild}
      */
     this.guild = guild;
+
+    /**
+     * The icon hash of the role
+     * @type {?string}
+     */
+    this.icon = null;
+
+    /**
+     * The unicode emoji for the role
+     * @type {?string}
+     */
+    this.unicodeEmoji = null;
 
     if (data) this._patch(data);
   }
@@ -85,23 +104,9 @@ class Role extends Base {
       this.mentionable = data.mentionable;
     }
 
-    /**
-     * Whether the role has been deleted
-     * @type {boolean}
-     */
-    this.deleted = false;
+    if ('icon' in data) this.icon = data.icon;
 
-    /**
-     * The icon hash of the role
-     * @type {?string}
-     */
-    this.icon = data.icon;
-
-    /**
-     * The unicode emoji for the role
-     * @type {?string}
-     */
-    this.unicodeEmoji = data.unicode_emoji;
+    if ('unicode_emoji' in data) this.unicodeEmoji = data.unicode_emoji;
 
     /**
      * The tags this role has
@@ -130,7 +135,7 @@ class Role extends Base {
    * @readonly
    */
   get createdTimestamp() {
-    return SnowflakeUtil.deconstruct(this.id).timestamp;
+    return SnowflakeUtil.timestampFrom(this.id);
   }
 
   /**
@@ -140,6 +145,19 @@ class Role extends Base {
    */
   get createdAt() {
     return new Date(this.createdTimestamp);
+  }
+
+  /**
+   * Whether or not the role has been deleted
+   * @type {boolean}
+   */
+  get deleted() {
+    return deletedRoles.has(this);
+  }
+
+  set deleted(value) {
+    if (value) deletedRoles.add(this);
+    else deletedRoles.delete(this);
   }
 
   /**
@@ -228,12 +246,13 @@ class Role extends Base {
    * Returns `channel.permissionsFor(role)`. Returns permissions for a role in a guild channel,
    * taking into account permission overwrites.
    * @param {GuildChannel|Snowflake} channel The guild channel to use as context
+   * @param {boolean} [checkAdmin=true] Whether having `ADMINISTRATOR` will return all permissions
    * @returns {Readonly<Permissions>}
    */
-  permissionsIn(channel) {
+  permissionsIn(channel, checkAdmin = true) {
     channel = this.guild.channels.resolve(channel);
     if (!channel) throw new Error('GUILD_CHANNEL_RESOLVE');
-    return channel.rolePermissions(this);
+    return channel.rolePermissions(this, checkAdmin);
   }
 
   /**
@@ -344,7 +363,7 @@ class Role extends Base {
   }
 
   /**
-   * Options used to set position of a role.
+   * Options used to set the position of a role.
    * @typedef {Object} SetRolePositionOptions
    * @property {boolean} [relative=false] Whether to change the position relative to its current value or not
    * @property {string} [reason] The reason for changing the position
@@ -457,7 +476,8 @@ class Role extends Base {
   }
 }
 
-module.exports = Role;
+exports.Role = Role;
+exports.deletedRoles = deletedRoles;
 
 /**
  * @external APIRole

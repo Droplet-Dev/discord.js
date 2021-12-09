@@ -2,11 +2,11 @@
 
 const Action = require('./Action');
 const Typing = require('../../structures/Typing');
-const { Events, TextBasedChannelTypes } = require('../../util/Constants');
+const { Events } = require('../../util/Constants');
 
 class TypingStart extends Action {
   handle(data) {
- /*   const channel = this.getChannel(data);
+    /*   const channel = this.getChannel(data);
     if (!channel) {
       return;
     }

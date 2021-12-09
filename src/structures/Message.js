@@ -10,7 +10,7 @@ const Embed = require('./MessageEmbed');
 const Mentions = require('./MessageMentions');
 const MessagePayload = require('./MessagePayload');
 const ReactionCollector = require('./ReactionCollector');
-const Sticker = require('./Sticker');
+const { Sticker } = require('./Sticker');
 const { Error } = require('../errors');
 const ReactionManager = require('../managers/ReactionManager');
 const { InteractionTypes, MessageTypes, SystemMessageTypes } = require('../util/Constants');
@@ -18,6 +18,13 @@ const MessageFlags = require('../util/MessageFlags');
 const Permissions = require('../util/Permissions');
 const SnowflakeUtil = require('../util/SnowflakeUtil');
 const Util = require('../util/Util');
+
+/**
+ * @type {WeakSet<Message>}
+ * @private
+ * @internal
+ */
+const deletedMessages = new WeakSet();
 
 /**
  * Represents a message on Discord.
@@ -39,13 +46,7 @@ class Message extends Base {
      */
     this.guildId = data.guild_id ?? this.channel?.guild?.id ?? null;
 
-    /**
-     * Whether this message has been deleted
-     * @type {boolean}
-     */
-    this.deleted = false;
-
-    if (data) this._patch(data);
+    this._patch(data);
   }
 
   _patch(data) {
@@ -59,7 +60,7 @@ class Message extends Base {
      * The timestamp the message was sent at
      * @type {number}
      */
-    this.createdTimestamp = SnowflakeUtil.deconstruct(this.id).timestamp;
+    this.createdTimestamp = SnowflakeUtil.timestampFrom(this.id);
 
     if ('type' in data) {
       /**
@@ -293,7 +294,7 @@ class Message extends Base {
     /**
      * Reference data sent in a message that contains ids identifying the referenced message.
      * This can be present in the following types of message:
-     * * Crossposted messages (IS_CROSSPOST {@link MessageFlags#FLAGS message flag})
+     * * Crossposted messages (IS_CROSSPOST {@link MessageFlags.FLAGS message flag})
      * * CHANNEL_FOLLOW_ADD
      * * CHANNEL_PINNED_MESSAGE
      * * REPLY
@@ -346,6 +347,19 @@ class Message extends Base {
     } else {
       this.interaction ??= null;
     }
+  }
+
+  /**
+   * Whether or not the structure has been deleted
+   * @type {boolean}
+   */
+  get deleted() {
+    return deletedMessages.has(this);
+  }
+
+  set deleted(value) {
+    if (value) deletedMessages.add(this);
+    else deletedMessages.delete(this);
   }
 
   /**
@@ -424,7 +438,7 @@ class Message extends Base {
   }
 
   /**
-   * The url to jump to this message
+   * The URL to jump to this message
    * @type {string}
    * @readonly
    */
@@ -468,7 +482,7 @@ class Message extends Base {
    * Similar to createReactionCollector but in promise form.
    * Resolves with a collection of reactions that pass the specified filter.
    * @param {AwaitReactionsOptions} [options={}] Optional options to pass to the internal collector
-   * @returns {Promise<Collection<string, MessageReaction>>}
+   * @returns {Promise<Collection<string | Snowflake, MessageReaction>>}
    * @example
    * // Create a reaction collector
    * const filter = (reaction, user) => reaction.emoji.name === '👌' && user.id === 'someId'
@@ -551,7 +565,15 @@ class Message extends Base {
    * @readonly
    */
   get editable() {
-    return Boolean(this.author.id === this.client.user.id && !this.deleted && (!this.guild || this.channel?.viewable));
+    const precheck = Boolean(
+      this.author.id === this.client.user.id && !this.deleted && (!this.guild || this.channel?.viewable),
+    );
+    // Regardless of permissions thread messages cannot be edited if
+    // the thread is locked.
+    if (this.channel?.isThread()) {
+      return precheck && !this.channel.locked;
+    }
+    return precheck;
   }
 
   /**
@@ -717,14 +739,17 @@ class Message extends Base {
    */
   async react(emoji) {
     if (!this.channel) throw new Error('CHANNEL_NOT_CACHED');
-    emoji = this.client.emojis.resolveIdentifier(emoji);
     await this.channel.messages.react(this.id, emoji);
-    return this.client.actions.MessageReactionAdd.handle({
-      user: this.client.user,
-      channel: this.channel,
-      message: this,
-      emoji: Util.parseEmoji(emoji),
-    }).reaction;
+
+    return this.client.actions.MessageReactionAdd.handle(
+      {
+        user: this.client.user,
+        channel: this.channel,
+        message: this,
+        emoji: Util.resolvePartialEmoji(emoji),
+      },
+      true,
+    ).reaction;
   }
 
   /**
@@ -747,6 +772,7 @@ class Message extends Base {
    * @typedef {BaseMessageOptions} ReplyMessageOptions
    * @property {boolean} [failIfNotExists=true] Whether to error if the referenced message
    * does not exist (creates a standard message in this case when false)
+   * @property {StickerResolvable[]} [stickers=[]] Stickers to send in the message
    */
 
   /**
@@ -777,12 +803,24 @@ class Message extends Base {
   }
 
   /**
+   * A number that is allowed to be the duration (in minutes) of inactivity after which a thread is automatically
+   * archived. This can be:
+   * * `60` (1 hour)
+   * * `1440` (1 day)
+   * * `4320` (3 days) <warn>This is only available when the guild has the `THREE_DAY_THREAD_ARCHIVE` feature.</warn>
+   * * `10080` (7 days) <warn>This is only available when the guild has the `SEVEN_DAY_THREAD_ARCHIVE` feature.</warn>
+   * * `'MAX'` Based on the guild's features
+   * @typedef {number|string} ThreadAutoArchiveDuration
+   */
+
+  /**
    * Options for starting a thread on a message.
    * @typedef {Object} StartThreadOptions
    * @property {string} name The name of the new thread
-   * @property {ThreadAutoArchiveDuration} autoArchiveDuration The amount of time (in minutes) after which the thread
-   * should automatically archive in case of no recent activity
+   * @property {ThreadAutoArchiveDuration} [autoArchiveDuration=this.channel.defaultAutoArchiveDuration] The amount of
+   * time (in minutes) after which the thread should automatically archive in case of no recent activity
    * @property {string} [reason] Reason for creating the thread
+   * @property {number} [rateLimitPerUser] The rate limit per user (slowmode) for the thread in seconds
    */
 
   /**
@@ -887,6 +925,14 @@ class Message extends Base {
   }
 
   /**
+   * Whether this message is from a guild.
+   * @returns {boolean}
+   */
+  inGuild() {
+    return Boolean(this.guildId);
+  }
+
+  /**
    * When concatenated with a string, this automatically concatenates the message's content instead of the object.
    * @returns {string}
    * @example
@@ -910,4 +956,5 @@ class Message extends Base {
   }
 }
 
-module.exports = Message;
+exports.Message = Message;
+exports.deletedMessages = deletedMessages;

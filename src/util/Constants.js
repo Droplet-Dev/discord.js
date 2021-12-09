@@ -3,7 +3,7 @@
 const Package = (exports.Package = require('../../package.json'));
 const { Error, RangeError, TypeError } = require('../errors');
 
-exports.UserAgent = `DiscordBot (${Package.homepage.split('#')[0]}, ${Package.version}) Node.js/${process.version}`;
+exports.UserAgent = `DiscordBot (${Package.homepage}, ${Package.version}) Node.js/${process.version}`;
 
 exports.WSCodes = {
   1000: 'WS_CLOSE_REQUESTED',
@@ -16,7 +16,7 @@ exports.WSCodes = {
 
 const AllowedImageFormats = ['webp', 'png', 'jpg', 'jpeg', 'gif'];
 
-const AllowedImageSizes = [16, 32, 64, 128, 256, 300, 512, 600, 1024, 2048, 4096];
+const AllowedImageSizes = [16, 32, 56, 64, 96, 128, 256, 300, 512, 600, 1024, 2048, 4096];
 
 function makeImageUrl(root, { format = 'webp', size } = {}) {
   if (!['undefined', 'number'].includes(typeof size)) throw new TypeError('INVALID_TYPE', 'size', 'number');
@@ -35,7 +35,8 @@ function makeImageUrl(root, { format = 'webp', size } = {}) {
  * Options for static Image URLs.
  * @typedef {Object} StaticImageURLOptions
  * @property {string} [format='webp'] One of `webp`, `png`, `jpg`, `jpeg`.
- * @property {number} [size] One of `16`, `32`, `64`, `128`, `256`, `300`, `512`, `600`, `1024`, `2048`, `4096`
+ * @property {number} [size] One of `16`, `32`, `56`, `64`, `96`, `128`, `256`, `300`, `512`, `600`, `1024`, `2048`,
+ * `4096`
  */
 
 // https://discord.com/developers/docs/reference#image-formatting-cdn-endpoints
@@ -124,9 +125,20 @@ exports.Opcodes = {
 exports.Events = {
   RATE_LIMIT: 'rateLimit',
   INVALID_REQUEST_WARNING: 'invalidRequestWarning',
+  API_RESPONSE: 'apiResponse',
+  API_REQUEST: 'apiRequest',
   CLIENT_READY: 'ready',
+  /**
+   * @deprecated See {@link https://github.com/discord/discord-api-docs/issues/3690 this issue} for more information.
+   */
   APPLICATION_COMMAND_CREATE: 'applicationCommandCreate',
+  /**
+   * @deprecated See {@link https://github.com/discord/discord-api-docs/issues/3690 this issue} for more information.
+   */
   APPLICATION_COMMAND_DELETE: 'applicationCommandDelete',
+  /**
+   * @deprecated See {@link https://github.com/discord/discord-api-docs/issues/3690 this issue} for more information.
+   */
   APPLICATION_COMMAND_UPDATE: 'applicationCommandUpdate',
   GUILD_CREATE: 'guildCreate',
   GUILD_DELETE: 'guildDelete',
@@ -214,12 +226,12 @@ exports.ShardEvents = {
 exports.PartialTypes = keyMirror(['USER', 'CHANNEL', 'GUILD_MEMBER', 'MESSAGE', 'REACTION']);
 
 /**
- * The type of a websocket message event, e.g. `MESSAGE_CREATE`. Here are the available events:
+ * The type of a WebSocket message event, e.g. `MESSAGE_CREATE`. Here are the available events:
  * * READY
  * * RESUMED
- * * APPLICATION_COMMAND_CREATE
- * * APPLICATION_COMMAND_DELETE
- * * APPLICATION_COMMAND_UPDATE
+ * * APPLICATION_COMMAND_CREATE (deprecated)
+ * * APPLICATION_COMMAND_DELETE (deprecated)
+ * * APPLICATION_COMMAND_UPDATE (deprecated)
  * * GUILD_CREATE
  * * GUILD_DELETE
  * * GUILD_UPDATE
@@ -430,6 +442,9 @@ exports.ActivityTypes = createEnum(['PLAYING', 'STREAMING', 'LISTENING', 'WATCHI
  * * `GUILD_CATEGORY` - a guild category channel
  * * `GUILD_NEWS` - a guild news channel
  * * `GUILD_STORE` - a guild store channel
+ * <warn>Store channels are deprecated and will be removed from Discord in March 2022. See
+ * [Self-serve Game Selling Deprecation](https://support-dev.discord.com/hc/en-us/articles/4414590563479)
+ * for more information.</warn>
  * * `GUILD_NEWS_THREAD` - a guild news channel's public thread channel
  * * `GUILD_PUBLIC_THREAD` - a guild text channel's public thread channel
  * * `GUILD_PRIVATE_THREAD` - a guild text channel's private thread channel
@@ -609,7 +624,9 @@ exports.VerificationLevels = createEnum(['NONE', 'LOW', 'MEDIUM', 'HIGH', 'VERY_
  * * ACCOUNT_OWNER_ONLY
  * * ANNOUNCEMENT_EDIT_LIMIT_EXCEEDED
  * * CHANNEL_HIT_WRITE_RATELIMIT
+ * * SERVER_HIT_WRITE_RATELIMIT
  * * CONTENT_NOT_ALLOWED
+ * * GUILD_PREMIUM_LEVEL_TOO_LOW
  * * MAXIMUM_GUILDS
  * * MAXIMUM_FRIENDS
  * * MAXIMUM_PINS
@@ -668,7 +685,10 @@ exports.VerificationLevels = createEnum(['NONE', 'LOW', 'MEDIUM', 'HIGH', 'VERY_
  * * INVALID_FORM_BODY
  * * INVITE_ACCEPTED_TO_GUILD_NOT_CONTAINING_BOT
  * * INVALID_API_VERSION
+ * * FILE_UPLOADED_EXCEEDS_MAXIMUM_SIZE
+ * * INVALID_FILE_UPLOADED
  * * CANNOT_SELF_REDEEM_GIFT
+ * * INVALID_GUILD
  * * PAYMENT_SOURCE_REQUIRED
  * * CANNOT_DELETE_COMMUNITY_REQUIRED_CHANNEL
  * * INVALID_STICKER_SENT
@@ -687,7 +707,14 @@ exports.VerificationLevels = createEnum(['NONE', 'LOW', 'MEDIUM', 'HIGH', 'VERY_
  * * MESSAGE_ALREADY_HAS_THREAD
  * * THREAD_LOCKED
  * * MAXIMUM_ACTIVE_THREADS
- * * MAXIMUM_ACTIVE_ANNOUCEMENT_THREAD
+ * * MAXIMUM_ACTIVE_ANNOUNCEMENT_THREAD
+ * * INVALID_JSON_FOR_UPLOADED_LOTTIE_FILE
+ * * UPLOADED_LOTTIES_CANNOT_CONTAIN_RASTERIZED_IMAGES
+ * * STICKER_MAXIMUM_FRAMERATE_EXCEEDED
+ * * STICKER_FRAME_COUNT_EXCEEDS_MAXIMUM_OF_1000_FRAMES
+ * * LOTTIE_ANIMATION_MAXIMUM_DIMENSIONS_EXCEEDED
+ * * STICKER_FRAME_RATE_IS_TOO_SMALL_OR_TOO_LARGE
+ * * STICKER_ANIMATION_DURATION_EXCEEDS_MAXIMUM_OF_5_SECONDS
  * @typedef {string} APIError
  * @see {@link https://discord.com/developers/docs/topics/opcodes-and-status-codes#json-json-error-codes}
  */
@@ -740,6 +767,7 @@ exports.APIErrors = {
   ACCOUNT_OWNER_ONLY: 20018,
   ANNOUNCEMENT_EDIT_LIMIT_EXCEEDED: 20022,
   CHANNEL_HIT_WRITE_RATELIMIT: 20028,
+  SERVER_HIT_WRITE_RATELIMIT: 20029,
   CONTENT_NOT_ALLOWED: 20031,
   GUILD_PREMIUM_LEVEL_TOO_LOW: 20035,
   MAXIMUM_GUILDS: 30001,
@@ -803,6 +831,7 @@ exports.APIErrors = {
   FILE_UPLOADED_EXCEEDS_MAXIMUM_SIZE: 50045,
   INVALID_FILE_UPLOADED: 50046,
   CANNOT_SELF_REDEEM_GIFT: 50054,
+  INVALID_GUILD: 50055,
   PAYMENT_SOURCE_REQUIRED: 50070,
   CANNOT_DELETE_COMMUNITY_REQUIRED_CHANNEL: 50074,
   INVALID_STICKER_SENT: 50081,
@@ -941,10 +970,17 @@ exports.ApplicationCommandPermissionTypes = createEnum([null, 'ROLE', 'USER']);
  * * PING
  * * APPLICATION_COMMAND
  * * MESSAGE_COMPONENT
+ * * APPLICATION_COMMAND_AUTOCOMPLETE
  * @typedef {string} InteractionType
  * @see {@link https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-interaction-type}
  */
-exports.InteractionTypes = createEnum([null, 'PING', 'APPLICATION_COMMAND', 'MESSAGE_COMPONENT']);
+exports.InteractionTypes = createEnum([
+  null,
+  'PING',
+  'APPLICATION_COMMAND',
+  'MESSAGE_COMPONENT',
+  'APPLICATION_COMMAND_AUTOCOMPLETE',
+]);
 
 /**
  * The type of an interaction response:
@@ -953,6 +989,7 @@ exports.InteractionTypes = createEnum([null, 'PING', 'APPLICATION_COMMAND', 'MES
  * * DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE
  * * DEFERRED_MESSAGE_UPDATE
  * * UPDATE_MESSAGE
+ * * APPLICATION_COMMAND_AUTOCOMPLETE_RESULT
  * @typedef {string} InteractionResponseType
  * @see {@link https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-interaction-callback-type}
  */
@@ -965,6 +1002,7 @@ exports.InteractionResponseTypes = createEnum([
   'DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE',
   'DEFERRED_MESSAGE_UPDATE',
   'UPDATE_MESSAGE',
+  'APPLICATION_COMMAND_AUTOCOMPLETE_RESULT',
 ]);
 /* eslint-enable max-len */
 
@@ -1077,5 +1115,5 @@ function createEnum(keys) {
  * @property {StickerType} StickerTypes The value set for a sticker's type.
  * @property {VerificationLevel} VerificationLevels The value set for the verification levels for a guild.
  * @property {WebhookType} WebhookTypes The value set for a webhook's type.
- * @property {WSEventType} WSEvents The type of a websocket message event.
+ * @property {WSEventType} WSEvents The type of a WebSocket message event.
  */

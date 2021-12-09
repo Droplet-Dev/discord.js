@@ -3,6 +3,7 @@
 const EventEmitter = require('node:events');
 const fs = require('node:fs');
 const path = require('node:path');
+const { setTimeout: sleep } = require('node:timers/promises');
 const { Collection } = require('@discordjs/collection');
 const Shard = require('./Shard');
 const { Error, TypeError, RangeError } = require('../errors');
@@ -166,7 +167,7 @@ class ShardingManager extends EventEmitter {
   }
 
   /**
-   * Option used to spawn multiple shards.
+   * Options used to spawn multiple shards.
    * @typedef {Object} MultipleShardSpawnOptions
    * @property {number|string} [amount=this.totalShards] Number of shards to spawn
    * @property {number} [delay=5500] How long to wait in between spawning each shard (in milliseconds)
@@ -214,7 +215,7 @@ class ShardingManager extends EventEmitter {
       const promises = [];
       const shard = this.createShard(shardId);
       promises.push(shard.spawn(timeout));
-      if (delay > 0 && this.shards.size !== this.shardList.length) promises.push(Util.delayFor(delay));
+      if (delay > 0 && this.shards.size !== this.shardList.length) promises.push(sleep(delay));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
 
@@ -306,7 +307,7 @@ class ShardingManager extends EventEmitter {
     let s = 0;
     for (const shard of this.shards.values()) {
       const promises = [shard.respawn({ respawnDelay, timeout })];
-      if (++s < this.shards.size && shardDelay > 0) promises.push(Util.delayFor(shardDelay));
+      if (++s < this.shards.size && shardDelay > 0) promises.push(sleep(shardDelay));
       await Promise.all(promises); // eslint-disable-line no-await-in-loop
     }
     return this.shards;

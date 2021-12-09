@@ -8,6 +8,13 @@ const GuildMemberRoleManager = require('../managers/GuildMemberRoleManager');
 const Permissions = require('../util/Permissions');
 
 /**
+ * @type {WeakSet<GuildMember>}
+ * @private
+ * @internal
+ */
+const deletedGuildMembers = new WeakSet();
+
+/**
  * Represents a member of a guild on Discord.
  * @implements {TextBasedChannel}
  * @extends {Base}
@@ -29,16 +36,10 @@ class GuildMember extends Base {
     this.joinedTimestamp = null;
 
     /**
-     * The timestamp of when the member used their Nitro boost on the guild, if it was used
+     * The last timestamp this member started boosting the guild
      * @type {?number}
      */
     this.premiumSinceTimestamp = null;
-
-    /**
-     * Whether the member has been removed from the guild
-     * @type {boolean}
-     */
-    this.deleted = false;
 
     /**
      * The nickname of this member, if they have one
@@ -90,12 +91,25 @@ class GuildMember extends Base {
   }
 
   /**
+   * Whether or not the structure has been deleted
+   * @type {boolean}
+   */
+  get deleted() {
+    return deletedGuildMembers.has(this);
+  }
+
+  set deleted(value) {
+    if (value) deletedGuildMembers.add(this);
+    else deletedGuildMembers.delete(this);
+  }
+
+  /**
    * Whether this GuildMember is a partial
    * @type {boolean}
    * @readonly
    */
   get partial() {
-    return !this.joinedTimestamp;
+    return this.joinedTimestamp === null;
   }
 
   /**
@@ -146,7 +160,7 @@ class GuildMember extends Base {
   }
 
   /**
-   * The time of when the member used their Nitro boost on the guild, if it was used
+   * The last time this member started boosting the guild
    * @type {?Date}
    * @readonly
    */
@@ -384,7 +398,8 @@ class GuildMember extends Base {
 
 TextBasedChannel.applyToClass(GuildMember);
 
-module.exports = GuildMember;
+exports.GuildMember = GuildMember;
+exports.deletedGuildMembers = deletedGuildMembers;
 
 /**
  * @external APIGuildMember

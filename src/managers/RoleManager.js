@@ -3,7 +3,7 @@
 const { Collection } = require('@discordjs/collection');
 const CachedManager = require('./CachedManager');
 const { TypeError } = require('../errors');
-const Role = require('../structures/Role');
+const { Role } = require('../structures/Role');
 const DataResolver = require('../util/DataResolver');
 const Permissions = require('../util/Permissions');
 const { resolveColor, setPosition } = require('../util/Util');
@@ -216,6 +216,32 @@ class RoleManager extends CachedManager {
     const clone = role._clone();
     clone._patch(d);
     return clone;
+  }
+
+  /**
+   * Batch-updates the guild's role positions
+   * @param {GuildRolePosition[]} rolePositions Role positions to update
+   * @returns {Promise<Guild>}
+   * @example
+   * guild.roles.setPositions([{ role: roleId, position: updatedRoleIndex }])
+   *  .then(guild => console.log(`Role positions updated for ${guild}`))
+   *  .catch(console.error);
+   */
+  async setPositions(rolePositions) {
+    // Make sure rolePositions are prepared for API
+    rolePositions = rolePositions.map(o => ({
+      id: this.resolveId(o.role),
+      position: o.position,
+    }));
+
+    // Call the API to update role positions
+    await this.client.api.guilds(this.guild.id).roles.patch({
+      data: rolePositions,
+    });
+    return this.client.actions.GuildRolesPositionUpdate.handle({
+      guild_id: this.guild.id,
+      roles: rolePositions,
+    }).guild;
   }
 
   /**
