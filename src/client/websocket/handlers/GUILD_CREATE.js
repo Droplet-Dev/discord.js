@@ -3,18 +3,6 @@
 const { Events, Status } = require('../../../util/Constants');
 
 module.exports = (client, { d: data }, shard) => {
-  data = {
-    lazy: data.lazy,
-    large: data.large,
-    name: data.name,
-    members: data.members,
-    emojis: data.emojis,
-    channels: data.channels,
-    unavailable: data.unavailable,
-    owner_id: data.owner_id,
-    id: data.id,
-    roles: data.roles,
-  };
   let guild = client.guilds.cache.get(data.id);
   if (guild) {
     if (!guild.available && !data.unavailable) {
