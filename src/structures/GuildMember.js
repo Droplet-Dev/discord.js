@@ -36,6 +36,12 @@ class GuildMember extends Base {
     this.joinedTimestamp = null;
 
     /**
+     * The timestamp of last edited user
+     * @type {?number}
+     */
+    this.lastManaged = new Date().getTime();
+
+    /**
      * The last timestamp this member started boosting the guild
      * @type {?number}
      */
