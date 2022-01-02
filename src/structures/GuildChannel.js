@@ -41,12 +41,14 @@ class GuildChannel extends Channel {
      * @type {PermissionOverwriteManager}
      */
     this.permissionOverwrites = new PermissionOverwriteManager(this);
+    this.lastManaged = new Date().getTime();
 
     if (data && immediatePatch) this._patch(data);
   }
 
   _patch(data) {
     super._patch(data);
+    this.lastManaged = new Date().getTime();
 
     if ('name' in data) {
       /**

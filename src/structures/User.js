@@ -26,11 +26,14 @@ class User extends Base {
     this.system = null;
 
     this.flags = null;
+    this.lastManaged = new Date().getTime();
 
     this._patch(data);
   }
 
   _patch(data) {
+    this.lastManaged = new Date().getTime();
+
     if ('username' in data) {
       /**
        * The username of the user

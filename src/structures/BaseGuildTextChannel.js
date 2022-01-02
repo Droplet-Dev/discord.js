@@ -22,6 +22,7 @@ class BaseGuildTextChannel extends GuildChannel {
      * @type {MessageManager}
      */
     this.messages = new MessageManager(this);
+    this.lastManaged = new Date().getTime();
 
     /**
      * A manager of the threads belonging to this channel
@@ -40,6 +41,7 @@ class BaseGuildTextChannel extends GuildChannel {
 
   _patch(data) {
     super._patch(data);
+    this.lastManaged = new Date().getTime();
 
     if ('topic' in data) {
       /**

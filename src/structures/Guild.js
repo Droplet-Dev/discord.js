@@ -65,6 +65,7 @@ class Guild extends AnonymousGuild {
      * @type {GuildMemberManager}
      */
     this.members = new GuildMemberManager(this);
+    this.lastManaged = new Date().getTime();
 
     /**
      * A manager of the channels belonging to this guild
@@ -152,6 +153,8 @@ class Guild extends AnonymousGuild {
   _patch(data) {
     super._patch(data);
     this.id = data.id;
+    this.lastManaged = new Date().getTime();
+
     if ('name' in data) this.name = data.name;
     if ('icon' in data) this.icon = data.icon;
     if ('unavailable' in data) {
