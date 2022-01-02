@@ -64,6 +64,7 @@ class GuildMember extends Base {
   }
 
   _patch(data) {
+    this.lastManaged = new Date().getTime();
     if ('user' in data) {
       /**
        * The user that this guild member instance represents
