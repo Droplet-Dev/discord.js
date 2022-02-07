@@ -272,7 +272,7 @@ class WebSocketManager extends EventEmitter {
     // If we have more shards, add a 5s delay
     if (this.shardQueue.size) {
       this.debug(`Shard Queue Size: ${this.shardQueue.size}; continuing in 5 seconds...`);
-      // Await Util.delayFor(5000);
+      // Await Util.sleep(5000);
       // await this._handleSessionLimit();
       for (let i = 0; i <= this.sessionStartLimit.max_concurrency; i++) {
         this.createShards();
