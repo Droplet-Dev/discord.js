@@ -362,7 +362,7 @@ class WebSocketManager extends EventEmitter {
     }
     if (!remaining) {
       this.debug(`Exceeded identify threshold. Will attempt a connection in ${resetAfter}ms`);
-      await Util.delayFor(resetAfter);
+      await sleep(resetAfter);
     }
   }
 
