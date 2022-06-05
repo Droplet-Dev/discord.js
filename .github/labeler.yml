@@ -1,0 +1,31 @@
+chore:
+  - any: ['*']
+    all: ['!packages/*', '!packages/**/*']
+
+'packages:builders':
+  - packages/builders/*
+  - packages/builders/**/*
+
+'packages:collection':
+  - packages/collection/*
+  - packages/collection/**/*
+
+'packages:discord.js':
+  - packages/discord.js/*
+  - packages/discord.js/**/*
+
+'packages:proxy':
+  - packages/proxy/*
+  - packages/proxy/**/*
+
+'packages:rest':
+  - packages/rest/*
+  - packages/rest/**/*
+
+'packages:voice':
+  - packages/voice/*
+  - packages/voice/**/*
+
+'packages:ws':
+  - packages/ws/*
+  - packages/ws/**/*
