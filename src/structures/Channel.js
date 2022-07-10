@@ -193,12 +193,12 @@ class Channel extends Base {
             break;
           }
           case ChannelTypes.GUILD_NEWS_THREAD:
-          case ChannelTypes.GUILD_PUBLIC_THREAD:
-          case ChannelTypes.GUILD_PRIVATE_THREAD: {
+          /*  I   case ChannelTypes.GUILD_PUBLIC_THREAD:
+           case ChannelTypes.GUILD_PRIVATE_THREAD: {
             channel = new ThreadChannel(guild, data, client, fromInteraction);
-            if (!allowUnknownGuild) channel.parent?.threads.cache.set(channel.id, channel);
+            // I    if (!allowUnknownGuild) channel.parent?.threads.cache.set(channel.id, channel);
             break;
-          }
+          } */
         }
         if (channel && !allowUnknownGuild) guild.channels?.cache.set(channel.id, channel);
       }
