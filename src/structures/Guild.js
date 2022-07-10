@@ -347,7 +347,7 @@ class Guild extends AnonymousGuild {
       this.ownerId = data.owner_id;
     }
 
-    if (data.presences) {
+    /* I if (data.presences) {
       for (const presence of data.presences) {
         this.presences._add(Object.assign(presence, { guild: this }));
       }
@@ -365,7 +365,7 @@ class Guild extends AnonymousGuild {
       for (const voiceState of data.voice_states) {
         this.voiceStates._add(voiceState);
       }
-    }
+    } */
 
     if (!this.emojis) {
       /**
