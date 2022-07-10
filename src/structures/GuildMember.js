@@ -51,7 +51,7 @@ class GuildMember extends Base {
      * The nickname of this member, if they have one
      * @type {?string}
      */
-    this.nickname = null;
+    // this.nickname = null;
 
     /**
      * Whether this member has yet to pass the guild's membership gate
@@ -73,7 +73,7 @@ class GuildMember extends Base {
       this.user = this.client.users._add(data.user, true);
     }
 
-    if ('nick' in data) this.nickname = data.nick;
+    // I if ('nick' in data) this.nickname = data.nick;
     if ('avatar' in data) {
       /**
        * The guild member's avatar hash
