@@ -33,7 +33,7 @@ class GuildMember extends Base {
      * The timestamp the member joined the guild at
      * @type {?number}
      */
-    this.joinedTimestamp = null;
+    // this.joinedTimestamp = null;
 
     /**
      * The timestamp of last edited user
@@ -74,16 +74,12 @@ class GuildMember extends Base {
     }
 
     // I if ('nick' in data) this.nickname = data.nick;
-    if ('avatar' in data) {
-      /**
-       * The guild member's avatar hash
-       * @type {?string}
-       */
+    /* I if ('avatar' in data) {
       this.avatar = data.avatar;
     } else if (typeof this.avatar !== 'string') {
       this.avatar = null;
-    }
-    if ('joined_at' in data) this.joinedTimestamp = new Date(data.joined_at).getTime();
+    } */
+    // I  if ('joined_at' in data) this.joinedTimestamp = new Date(data.joined_at).getTime();
     if ('premium_since' in data) {
       this.premiumSinceTimestamp = data.premium_since ? new Date(data.premium_since).getTime() : null;
     }

@@ -5,7 +5,7 @@ const GuildChannel = require('./GuildChannel');
 const Webhook = require('./Webhook');
 const TextBasedChannel = require('./interfaces/TextBasedChannel');
 const MessageManager = require('../managers/MessageManager');
-const ThreadManager = require('../managers/ThreadManager');
+// >IU const ThreadManager = require('../managers/ThreadManager');
 const DataResolver = require('../util/DataResolver');
 
 /**
@@ -28,13 +28,13 @@ class BaseGuildTextChannel extends GuildChannel {
      * A manager of the threads belonging to this channel
      * @type {ThreadManager}
      */
-    this.threads = new ThreadManager(this);
+    //  this.threads = new ThreadManager(this);
 
     /**
      * If the guild considers this channel NSFW
      * @type {boolean}
      */
-    this.nsfw = Boolean(data.nsfw);
+    // this.nsfw = Boolean(data.nsfw);
 
     this._patch(data);
   }
@@ -43,11 +43,7 @@ class BaseGuildTextChannel extends GuildChannel {
     super._patch(data);
     this.lastManaged = new Date().getTime();
 
-    if ('topic' in data) {
-      /**
-       * The topic of the text channel
-       * @type {?string}
-       */
+    /* U()if ('topic' in data) {
       this.topic = data.topic;
     }
 
@@ -56,28 +52,16 @@ class BaseGuildTextChannel extends GuildChannel {
     }
 
     if ('last_message_id' in data) {
-      /**
-       * The last message id sent in the channel, if one was sent
-       * @type {?Snowflake}
-       */
       this.lastMessageId = data.last_message_id;
     }
 
     if ('last_pin_timestamp' in data) {
-      /**
-       * The timestamp when the last pinned message was pinned, if there was one
-       * @type {?number}
-       */
       this.lastPinTimestamp = data.last_pin_timestamp ? new Date(data.last_pin_timestamp).getTime() : null;
     }
 
     if ('default_auto_archive_duration' in data) {
-      /**
-       * The default auto archive duration for newly created threads in this channel
-       * @type {?ThreadAutoArchiveDuration}
-       */
       this.defaultAutoArchiveDuration = data.default_auto_archive_duration;
-    }
+    } */
 
     if ('messages' in data) {
       for (const message of data.messages) this.messages._add(message);

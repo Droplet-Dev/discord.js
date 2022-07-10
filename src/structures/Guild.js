@@ -10,16 +10,16 @@ const Webhook = require('./Webhook');
 const WelcomeScreen = require('./WelcomeScreen');
 const { Error } = require('../errors');
 const GuildApplicationCommandManager = require('../managers/GuildApplicationCommandManager');
-const GuildBanManager = require('../managers/GuildBanManager');
+// I const GuildBanManager = require('../managers/GuildBanManager');
 const GuildChannelManager = require('../managers/GuildChannelManager');
 const GuildEmojiManager = require('../managers/GuildEmojiManager');
-const GuildInviteManager = require('../managers/GuildInviteManager');
+// I const GuildInviteManager = require('../managers/GuildInviteManager');
 const GuildMemberManager = require('../managers/GuildMemberManager');
 const GuildStickerManager = require('../managers/GuildStickerManager');
-const PresenceManager = require('../managers/PresenceManager');
+// I const PresenceManager = require('../managers/PresenceManager');
 const RoleManager = require('../managers/RoleManager');
-const StageInstanceManager = require('../managers/StageInstanceManager');
-const VoiceStateManager = require('../managers/VoiceStateManager');
+// I const StageInstanceManager = require('../managers/StageInstanceManager');
+// I const VoiceStateManager = require('../managers/VoiceStateManager');
 const {
   ChannelTypes,
   DefaultMessageNotificationLevels,
@@ -77,7 +77,7 @@ class Guild extends AnonymousGuild {
      * A manager of the bans belonging to this guild
      * @type {GuildBanManager}
      */
-    this.bans = new GuildBanManager(this);
+    //   this.bans = new GuildBanManager(this);
 
     /**
      * A manager of the roles belonging to this guild
@@ -89,25 +89,25 @@ class Guild extends AnonymousGuild {
      * A manager of the presences belonging to this guild
      * @type {PresenceManager}
      */
-    this.presences = new PresenceManager(this.client);
+    //   this.presences = new PresenceManager(this.client);
 
     /**
      * A manager of the voice states of this guild
      * @type {VoiceStateManager}
      */
-    this.voiceStates = new VoiceStateManager(this);
+    // this.voiceStates = new VoiceStateManager(this);
 
     /**
      * A manager of the stage instances of this guild
      * @type {StageInstanceManager}
      */
-    this.stageInstances = new StageInstanceManager(this);
+    // this.stageInstances = new StageInstanceManager(this);
 
     /**
      * A manager of the invites of this guild
      * @type {GuildInviteManager}
      */
-    this.invites = new GuildInviteManager(this);
+    // this.invites = new GuildInviteManager(this);
 
     if (!data) return;
     if (data.unavailable) {
@@ -156,20 +156,16 @@ class Guild extends AnonymousGuild {
     this.lastManaged = new Date().getTime();
 
     if ('name' in data) this.name = data.name;
-    if ('icon' in data) this.icon = data.icon;
+    // U   if ('icon' in data) this.icon = data.icon;
     if ('unavailable' in data) {
       this.available = !data.unavailable;
     } else {
       this.available ??= true;
     }
 
-    if ('discovery_splash' in data) {
-      /**
-       * The hash of the guild discovery splash image
-       * @type {?string}
-       */
+    /* I if ('discovery_splash' in data) {
       this.discoverySplash = data.discovery_splash;
-    }
+    } */
 
     if ('member_count' in data) {
       /**
@@ -186,15 +182,11 @@ class Guild extends AnonymousGuild {
        */
       this.large = Boolean(data.large);
     }
-
+    /* I
     if ('premium_progress_bar_enabled' in data) {
-      /**
-       * Whether this guild has its premium (boost) progress bar enabled
-       * @type {boolean}
-       */
       this.premiumProgressBarEnabled = data.premium_progress_bar_enabled;
     }
-
+*/
     /**
      * An array of enabled guild features, here are the possible values:
      * * ANIMATED_ICON
@@ -230,70 +222,38 @@ class Guild extends AnonymousGuild {
        */
       this.applicationId = data.application_id;
     }
-
+    /* U
     if ('afk_timeout' in data) {
-      /**
-       * The time in seconds before a user is counted as "away from keyboard"
-       * @type {?number}
-       */
       this.afkTimeout = data.afk_timeout;
     }
 
     if ('afk_channel_id' in data) {
-      /**
-       * The id of the voice channel where AFK members are moved
-       * @type {?Snowflake}
-       */
       this.afkChannelId = data.afk_channel_id;
     }
 
     if ('system_channel_id' in data) {
-      /**
-       * The system channel's id
-       * @type {?Snowflake}
-       */
       this.systemChannelId = data.system_channel_id;
     }
 
     if ('premium_tier' in data) {
-      /**
-       * The premium tier of this guild
-       * @type {PremiumTier}
-       */
       this.premiumTier = PremiumTiers[data.premium_tier];
     }
 
     if ('premium_subscription_count' in data) {
-      /**
-       * The total number of boosts for this server
-       * @type {?number}
-       */
       this.premiumSubscriptionCount = data.premium_subscription_count;
     }
 
     if ('widget_enabled' in data) {
-      /**
-       * Whether widget images are enabled on this guild
-       * @type {?boolean}
-       */
       this.widgetEnabled = data.widget_enabled;
     }
 
     if ('widget_channel_id' in data) {
-      /**
-       * The widget channel's id, if enabled
-       * @type {?string}
-       */
       this.widgetChannelId = data.widget_channel_id;
     }
 
     if ('explicit_content_filter' in data) {
-      /**
-       * The explicit content filter level of the guild
-       * @type {ExplicitContentFilterLevel}
-       */
       this.explicitContentFilter = ExplicitContentFilterLevels[data.explicit_content_filter];
-    }
+    } */
 
     if ('mfa_level' in data) {
       /**
@@ -310,97 +270,51 @@ class Guild extends AnonymousGuild {
        */
       this.joinedTimestamp = new Date(data.joined_at).getTime();
     }
-
+    /* IO
     if ('default_message_notifications' in data) {
-      /**
-       * The default message notification level of the guild
-       * @type {DefaultMessageNotificationLevel}
-       */
       this.defaultMessageNotifications = DefaultMessageNotificationLevels[data.default_message_notifications];
     }
 
     if ('system_channel_flags' in data) {
-      /**
-       * The value set for the guild's system channel flags
-       * @type {Readonly<SystemChannelFlags>}
-       */
       this.systemChannelFlags = new SystemChannelFlags(data.system_channel_flags).freeze();
     }
 
     if ('max_members' in data) {
-      /**
-       * The maximum amount of members the guild can have
-       * @type {?number}
-       */
       this.maximumMembers = data.max_members;
     } else {
       this.maximumMembers ??= null;
     }
 
     if ('max_presences' in data) {
-      /**
-       * The maximum amount of presences the guild can have
-       * <info>You will need to fetch the guild using {@link Guild#fetch} if you want to receive this parameter</info>
-       * @type {?number}
-       */
       this.maximumPresences = data.max_presences ?? 25_000;
     } else {
       this.maximumPresences ??= null;
     }
 
     if ('approximate_member_count' in data) {
-      /**
-       * The approximate amount of members the guild has
-       * <info>You will need to fetch the guild using {@link Guild#fetch} if you want to receive this parameter</info>
-       * @type {?number}
-       */
       this.approximateMemberCount = data.approximate_member_count;
     } else {
       this.approximateMemberCount ??= null;
     }
 
     if ('approximate_presence_count' in data) {
-      /**
-       * The approximate amount of presences the guild has
-       * <info>You will need to fetch the guild using {@link Guild#fetch} if you want to receive this parameter</info>
-       * @type {?number}
-       */
       this.approximatePresenceCount = data.approximate_presence_count;
     } else {
       this.approximatePresenceCount ??= null;
     }
-
-    /**
-     * The use count of the vanity URL code of the guild, if any
-     * <info>You will need to fetch this parameter using {@link Guild#fetchVanityData} if you want to receive it</info>
-     * @type {?number}
-     */
     this.vanityURLUses ??= null;
 
     if ('rules_channel_id' in data) {
-      /**
-       * The rules channel's id for the guild
-       * @type {?Snowflake}
-       */
       this.rulesChannelId = data.rules_channel_id;
     }
 
     if ('public_updates_channel_id' in data) {
-      /**
-       * The community updates channel's id for the guild
-       * @type {?Snowflake}
-       */
       this.publicUpdatesChannelId = data.public_updates_channel_id;
     }
 
     if ('preferred_locale' in data) {
-      /**
-       * The preferred locale of the guild, defaults to `en-US`
-       * @type {string}
-       * @see {@link https://discord.com/developers/docs/dispatch/field-values#predefined-field-values-accepted-locales}
-       */
       this.preferredLocale = data.preferred_locale;
-    }
+    } */
 
     if (data.channels) {
       this.channels.cache.clear();

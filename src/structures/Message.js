@@ -10,7 +10,7 @@ const Embed = require('./MessageEmbed');
 const Mentions = require('./MessageMentions');
 const MessagePayload = require('./MessagePayload');
 const ReactionCollector = require('./ReactionCollector');
-const { Sticker } = require('./Sticker');
+// U const { Sticker } = require('./Sticker');
 const { Error } = require('../errors');
 const ReactionManager = require('../managers/ReactionManager');
 const { InteractionTypes, MessageTypes, SystemMessageTypes } = require('../util/Constants');
@@ -79,15 +79,11 @@ class Message extends Base {
       this.type ??= null;
     }
 
-    if ('content' in data) {
-      /**
-       * The content of the message
-       * @type {?string}
-       */
+    /* I if ('content' in data) {
       this.content = data.content;
     } else {
       this.content ??= null;
-    }
+    } */
 
     if ('author' in data) {
       /**
@@ -98,26 +94,18 @@ class Message extends Base {
     } else {
       this.author ??= null;
     }
-
+    /* I
     if ('pinned' in data) {
-      /**
-       * Whether or not this message is pinned
-       * @type {?boolean}
-       */
       this.pinned = Boolean(data.pinned);
     } else {
       this.pinned ??= null;
     }
 
     if ('tts' in data) {
-      /**
-       * Whether or not the message was Text-To-Speech
-       * @type {?boolean}
-       */
       this.tts = data.tts;
     } else {
       this.tts ??= null;
-    }
+    } */
 
     if ('nonce' in data) {
       /**
@@ -165,18 +153,14 @@ class Message extends Base {
     } else {
       this.attachments = new Collection(this.attachments);
     }
-
+    /* I
     if ('sticker_items' in data || 'stickers' in data) {
-      /**
-       * A collection of stickers in the message
-       * @type {Collection<Snowflake, Sticker>}
-       */
       this.stickers = new Collection(
         (data.sticker_items ?? data.stickers)?.map(s => [s.id, new Sticker(this.client, s)]),
       );
     } else {
       this.stickers = new Collection(this.stickers);
-    }
+    } */
 
     // Discord sends null if the message has not been edited
     if (data.edited_timestamp) {

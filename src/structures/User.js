@@ -64,47 +64,26 @@ class User extends Base {
       this.discriminator ??= null;
     }
 
-    if ('avatar' in data) {
-      /**
-       * The user avatar's hash
-       * @type {?string}
-       */
+    /* I if ('avatar' in data) {
       this.avatar = data.avatar;
     } else {
       this.avatar ??= null;
     }
-
     if ('banner' in data) {
-      /**
-       * The user banner's hash
-       * <info>The user must be force fetched for this property to be present or be updated</info>
-       * @type {?string}
-       */
       this.banner = data.banner;
     } else if (this.banner !== null) {
       this.banner ??= undefined;
     }
-
-    if ('accent_color' in data) {
-      /**
-       * The base 10 accent color of the user's banner
-       * <info>The user must be force fetched for this property to be present or be updated</info>
-       * @type {?number}
-       */
+    /* A if ('accent_color' in data) {
       this.accentColor = data.accent_color;
     } else if (this.accentColor !== null) {
       this.accentColor ??= undefined;
-    }
 
     if ('system' in data) {
-      /**
-       * Whether the user is an Official Discord System user (part of the urgent message system)
-       * @type {?boolean}
-       */
       this.system = Boolean(data.system);
     } else if (!this.partial && typeof this.system !== 'boolean') {
       this.system = false;
-    }
+    }*/
 
     if ('public_flags' in data) {
       /**
